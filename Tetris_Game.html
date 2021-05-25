@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+    </head>
+    <style>
+        .bg {
+            margin: 60px auto;
+            width: 200px;
+            height: 400px;
+            background: #000;
+            display: flex;
+            position: relative;
+        }
+
+        .cube {
+            margin: 0;
+            width: 20px;
+            height: 20px;
+            border: 1px black solid;
+            background-color: #fff;
+            box-sizing: border-box;
+            position: absolute;
+        }
+
+        .iBrick,
+        .jBrick,
+        .lBrick,
+        .oBrick,
+        .sBrick,
+        .tBrick,
+        .zBrick {
+            margin: 0;
+            position: absolute;
+        }
+
+        .iBrick,
+        .lBrick,
+        .zBrick {
+            transform-origin: 40px;
+        }
+
+        .jBrick,
+        .oBrick,
+        .sBrick,
+        .tBrick {
+            transform-origin: 20px;
+        }
+
+        .row {
+            display: flex;
+            justify-content: center;
+        }
+
+        .info {
+            width: 260px;
+            height: 400px;
+            background: black;
+            margin: 60px 60px 60px 0;
+            color: white;
+            word-wrap: break-word;
+        }
+
+        .info > p {
+            margin: 0;
+        }
+
+        .dashboard {
+            margin-left: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-evenly;
+        }
+
+        .tempArea {
+            width: 100px;
+            height: 60px;
+            background: black;
+            margin: 0;
+            padding-top: 20px;
+            padding-left: 20px;
+        }
+
+        .scoreBox {
+            width: 110px;
+            height: auto;
+            background: black;
+            margin: 0;
+            padding-right: 10px;
+            color: goldenrod;
+            font-weight: bolder;
+            line-height: 2rem;
+            text-align: right;
+        }
+
+        p {
+            color: white;
+            background: black;
+            margin-bottom: 5px;
+        }
+
+        .endText {
+            width: 100%;
+            height: 100%;
+            display: none;
+            position: absolute;
+            z-index: 10;
+        }
+
+        h1 {
+            margin-top: 70%;
+            font-weight: 600;
+            text-shadow: 0 0 5px black;
+            color: white;
+        }
+
+        .restartText {
+            width: 100%;
+            font-weight: bolder;
+            text-align: center;
+            text-shadow: 0 0 5px black;
+            color: white;
+        }
+
+        .btn {
+            display: inline-block;
+            margin-bottom: 0;
+            text-align: center;
+            text-transform: uppercase;
+            vertical-align: middle;
+            cursor: pointer;
+            background-image: none;
+            padding: 6px 12px;
+            font-size: 1.4rem;
+            border-radius: 3px;
+            border: 1px solid transparent;
+            text-decoration: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        .btn:hover {
+            text-decoration: none;
+            color: #fff;
+        }
+        .btn-default {
+            color: #eceff1;
+            border-color: #546e7a;
+            background: linear-gradient(to bottom, #90a4ae 0%, #78909c 100%);
+            box-shadow: inset 0 1px #cfd8dc, 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        .btn-default:hover {
+            border-color: #78909c;
+            background: linear-gradient(to bottom, #b0bec5 0%, #90a4ae 100%);
+            box-shadow: inset 0 1px #eceff1, 0 2px 3px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+    <body>
+        <!-- <div style="width: 100%; text-align: center">
+            <button id="temp" class="btn btn-default">暫存方塊</button>
+            <button id="create" class="btn btn-default">生成方塊</button>
+            <button id="delete" class="btn btn-default">清除方塊</button>
+        </div> -->
+        <div class="row">
+            <div class="info">
+                <p>Rule</p>
+                <p>移動：方向鍵左(←)、下(↓)、右(→)</p>
+                <p>旋轉：方向鍵左(↑)</p>
+                <p>Game Over後按r鍵重置遊戲</p>
+                <p>旋轉後若沒有空間則無法旋轉</p>
+                <p style="margin-top: 20px">計分</p>
+                <p>單次消除1列：100</p>
+                <p>單次消除2列：200</p>
+                <p>單次消除3列：400</p>
+                <p>單次消除4列：800</p>
+                <p style="margin-top: 20px">備註</p>
+                <p>此為JQuery&JS的練習作品</p>
+                <p>按鈕的CSS借用自</p>
+                <a href="https://codepen.io/stidges/pen/vqDjI">Bunch-o-Buttons</a>
+                <p>部分規則可能和正式的Tetris不同</p>
+                <p>
+                    如有問題或bug歡迎至<a href="https://github.com/KoujiY/sideproject_tetris"
+                        >Github</a
+                    >回應
+                </p>
+            </div>
+            <div>
+                <div class="bg">
+                    <div class="endText">
+                        <h1>GAME OVER</h1>
+                        <div class="restartText">press 'r' to restart</div>
+                    </div>
+                </div>
+            </div>
+            <div class="dashboard">
+                <div>
+                    <p>Next Brick</p>
+                    <div class="tempArea"></div>
+                </div>
+                <div>
+                    <p>Score</p>
+                    <div class="scoreBox">0</div>
+                </div>
+                <button id="gameStart" class="btn btn-default">開始遊戲</button>
+            </div>
+        </div>
+    </body>
+    <script
+        src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+        crossorigin="anonymous"
+    ></script>
+    <script>
+        // 設定旋轉角度變數、位置差變數、以及判定的trigger等參數
+        let deg = 0;
+        let brickTop = 0;
+        let brickBottom = 0;
+        let brickLeft = 0;
+        let brickRight = 0;
+        let brickDataArr = [];
+        let cubeDataArr = [];
+        let coverTrigger = false;
+        let overlapTrigger = false;
+        let leftTrigger = true;
+        let rightTrigger = true;
+        let reloadTrigger = false;
+        let randBrick = 0;
+        let randIndex = 0;
+        let clearCount = 0;
+        let gameInterval = null;
+
+        // 開發用按鈕
+        $("#temp").click(function () {
+            tempBrick();
+        });
+        $("#create").click(function () {
+            bgBrick();
+        });
+        $("#delete").click(function () {
+            console.log("end of delete");
+            $("#nextBrick").remove();
+        });
+
+        // 開始遊戲按鈕
+        $("#gameStart").one("click", function () {
+            tempBrick();
+            gameInitial();
+            gameInterval = setInterval(function () {
+                $("#nowBrick").css("top", "+=20");
+                mainRule();
+            }, 1000);
+        });
+
+        // 鍵盤事件
+        $(document).on("keydown", function (e) {
+            console.log("e", e.which);
+
+            // 按下r鍵，重新整理畫面(使用reloadTrigger控制按鍵觸發)
+            if (e.which === 82 && reloadTrigger) {
+                window.location.replace(window.location.href);
+                return;
+            }
+
+            if (!reloadTrigger) {
+                // 方向控制與旋轉 (無法向上移動，向上的功能僅於開發時啟用，旋轉鍵要用其他按鍵取代)
+                // if (e.which === 38) {
+                //     $("#nowBrick").css("top", "-=20");
+                // }
+                if (e.which === 40 && brickBottom > 0) {
+                    $("#nowBrick").css("top", "+=20");
+                }
+                if (e.which === 37 && brickLeft > 0 && leftTrigger) {
+                    $("#nowBrick").css("left", "-=20");
+                }
+                if (e.which === 39 && brickRight > 0 && rightTrigger) {
+                    $("#nowBrick").css("left", "+=20");
+                }
+                if (e.which === 38 && !reloadTrigger) {
+                    deg += 90;
+                    $("#nowBrick").css("transform", `rotate(${deg}deg)`);
+                }
+
+                // 呼叫主要邏輯function
+                mainRule();
+            }
+        });
+
+        // 遊戲初始化funtion
+        function gameInitial() {
+            bgBrick();
+            $("#nextBrick").remove();
+            tempBrick();
+        }
+
+        // 暫存區生成brick的function
+        function tempBrick() {
+            randBrick = parseInt(Math.random() * 7 + 1);
+            createBrick(randBrick, "tempArea", "nextBrick");
+        }
+
+        // 背景區生成brick的function
+        function bgBrick() {
+            // 重置角度變數
+            deg = 0;
+
+            // 依序為取得隨機數、產生brick、brick位置校正、初使化brick出現位置、取得cube位置資訊
+            randIndex = randBrick;
+            createBrick(randIndex, "bg", "nowBrick");
+            brickPosition(randIndex);
+            initPosition(randIndex);
+            brickCubeData();
+
+            // 遊戲結束判斷
+            if (overlapTrigger) {
+                stopGame();
+            }
+        }
+
+        // 遊戲運作的主要邏輯function
+        function mainRule() {
+            // 移動或旋轉之後，重新設定位置參數
+            brickPosition(randIndex);
+
+            // 產生brick子代cube的邊界資訊
+            brickCubeData();
+
+            // 旋轉後若有cube重疊的狀況，回到旋轉前的狀態
+            if (coverTrigger) {
+                deg -= 90;
+                $("#nowBrick").css("transform", `rotate(${deg}deg)`);
+                brickPosition(randIndex);
+                brickCubeData();
+            }
+
+            // 如果brick底部邊界重疊，執行觸底的if判斷
+            if (brickBottom <= 0 || overlapTrigger) {
+                // 當前brick轉存並移除
+                brickToCube();
+
+                // 將畫面中所有的cube資訊存進二維陣列
+                bgCubeData();
+
+                // 判斷10個cube的row並刪除
+                checkCubeRow();
+
+                // 重新呼叫初始化funtion
+                gameInitial();
+
+                // 遊戲結束的判斷
+                endJudge();
+            }
+        }
+
+        // 中止遊戲的function
+        function stopGame() {
+            clearInterval(gameInterval);
+            reloadTrigger = true;
+            $(".endText").css("display", "unset");
+        }
+
+        // 遊戲結束的判斷function
+        function endJudge() {
+            cubeDataArr.forEach((bgCube) => {
+                if (bgCube[0] - $(".bg").offset().top < 0) {
+                    console.log("end game");
+                    stopGame();
+                    return;
+                }
+            });
+        }
+
+        // 位置差資訊function(console)
+        function consolePosi() {
+            console.log("bgTopDiff", brickTop);
+            console.log("bgBottomDiff", brickBottom);
+            console.log("bgLeftDiff", brickLeft);
+            console.log("bgRightDiff", brickRight);
+        }
+
+        // 產生brick子代cube的邊界資訊
+        function brickCubeData() {
+            // 重置brick子代cube以及bg cube的相關變數
+            brickDataArr.length = 0;
+            coverTrigger = false;
+            overlapTrigger = false;
+            leftTrigger = true;
+            rightTrigger = true;
+
+            $("#nowBrick")
+                .children()
+                .each(function () {
+                    brickDataArr.push([$(this).offset().top, $(this).offset().left]);
+                });
+
+            // 判斷整個cube是否重疊覆蓋
+            brickDataArr.forEach((brCube) => {
+                cubeDataArr.forEach((bgCube) => {
+                    if (brCube[1] === bgCube[1]) {
+                        if (brCube[0] === bgCube[0]) {
+                            coverTrigger = true;
+                            return;
+                        }
+                    }
+                });
+            });
+
+            // 判斷brick下邊界是否和cube上邊界重疊
+            brickDataArr.forEach((brCube) => {
+                cubeDataArr.forEach((bgCube) => {
+                    if (brCube[1] === bgCube[1]) {
+                        if (brCube[0] + 20 === bgCube[0]) {
+                            overlapTrigger = true;
+                            return;
+                        }
+                    }
+                });
+            });
+
+            // 判斷brick左右邊界是否重疊
+            brickDataArr.forEach((brCube) => {
+                cubeDataArr.forEach((bgCube) => {
+                    if (brCube[0] === bgCube[0]) {
+                        // brick的左邊界判斷
+                        if (brCube[1] === bgCube[1] + 20) {
+                            leftTrigger = false;
+                        }
+                        // brick的右邊界判斷
+                        if (brCube[1] + 20 === bgCube[1]) {
+                            rightTrigger = false;
+                        }
+                    }
+                });
+            });
+        }
+
+        // 產生背景cube的邊界資訊(不含brick的cube)
+        function bgCubeData() {
+            cubeDataArr.length = 0;
+            $(".bg")
+                .children()
+                .not(".endText")
+                .each(function () {
+                    cubeDataArr.push([$(this).offset().top, $(this).offset().left]);
+                });
+        }
+
+        // 轉存並刪除brick的function
+        function brickToCube() {
+            $("#nowBrick")
+                .children()
+                .each(function () {
+                    let cubeStyle = {
+                        background: `${$(this).css("background-color")}`,
+                        top: `${$(this).offset().top - $(".bg").offset().top}px`,
+                        left: `${$(this).offset().left - $(".bg").offset().left}px`,
+                    };
+                    $(".bg").append('<div class="cube"></div>');
+                    $(".bg").children().last().css(cubeStyle);
+                });
+            $("#nowBrick").remove();
+        }
+
+        // 刪除橫列(10個cube)的function
+        function checkCubeRow() {
+            // 生成物件，計算top相同的cube數量，並轉成陣列
+            const cubeCountObj = {};
+            cubeDataArr.forEach((bgCube) => {
+                cubeCountObj[bgCube[0]] ? cubeCountObj[bgCube[0]]++ : (cubeCountObj[bgCube[0]] = 1);
+            });
+            console.log(cubeCountObj);
+            let cubeCountArr = Object.entries(cubeCountObj);
+            cubeCountArr.sort((a, b) => Number(a[0]) - Number(b[0]));
+            console.log(cubeCountArr);
+
+            // 找出top數量為10的row，刪除後將上方的cube下移
+            cubeCountArr.forEach((bgCube) => {
+                if (bgCube[1] === 10) {
+                    $(".bg")
+                        .children()
+                        .filter(function () {
+                            return $(this).offset().top === +bgCube[0];
+                        })
+                        .remove();
+
+                    clearCount++;
+
+                    $(".bg")
+                        .children()
+                        .filter(function () {
+                            return $(this).offset().top < +bgCube[0];
+                        })
+                        .css("top", "+=20");
+                }
+            });
+
+            // 更新cube的二維陣列資訊
+            bgCubeData();
+
+            // 修改分數，然後重置clearCount
+            if (clearCount) {
+                $(".scoreBox").text(
+                    `${parseInt($(".scoreBox").text()) + 100 * Math.pow(2, clearCount - 1)}`
+                );
+                clearCount = 0;
+            }
+        }
+
+        // 生成brick的function
+        function createBrick(randSeed, brickCanvas, brickId) {
+            switch (randSeed) {
+                case 1:
+                    iBrick(brickCanvas, brickId);
+                    break;
+                case 2:
+                    jBrick(brickCanvas, brickId);
+                    break;
+                case 3:
+                    lBrick(brickCanvas, brickId);
+                    break;
+                case 4:
+                    oBrick(brickCanvas, brickId);
+                    break;
+                case 5:
+                    sBrick(brickCanvas, brickId);
+                    break;
+                case 6:
+                    tBrick(brickCanvas, brickId);
+                    break;
+                case 7:
+                    zBrick(brickCanvas, brickId);
+                    break;
+                default:
+                    break;
+            }
+        }
+        function brickPosition(randSeed) {
+            switch (randSeed) {
+                case 1:
+                    lineBrickPos();
+                    break;
+                case 4:
+                    squareBrickPos();
+                    break;
+                default:
+                    rectangleBrickPos();
+                    break;
+            }
+        }
+        function initPosition(randSeed) {
+            switch (randSeed) {
+                case 1:
+                    $("#nowBrick").css("top", "-=20").css("left", "+=60");
+                    break;
+                case 4:
+                    $("#nowBrick").css("top", "-=40").css("left", "+=80");
+                    break;
+                default:
+                    $("#nowBrick").css("top", "-=40").css("left", "+=80");
+                    break;
+            }
+        }
+        function iBrick(brickCanvas, brickId) {
+            $(`.${brickCanvas}`).append(
+                `<div id="${brickId}" class="iBrick"><div class="cube"></div><div class="cube" style="left: 20px"></div><div class="cube" style="left: 40px"></div><div class="cube" style="left: 60px"></div></div>`
+            );
+            $(`#${brickId}`).children().css("background-color", "rgb(0, 255, 255)");
+        }
+        function jBrick(brickCanvas, brickId) {
+            $(`.${brickCanvas}`).append(
+                `<div id="${brickId}" class="jBrick"><div class="cube"></div><div class="cube" style="top: 20px"></div><div class="cube" style="left: 20px; top:20px"></div><div class="cube" style="left: 40px; top:20px"></div></div>`
+            );
+            $(`#${brickId}`).children().css("background-color", "rgb(0, 0, 240)");
+        }
+        function lBrick(brickCanvas, brickId) {
+            $(`.${brickCanvas}`).append(
+                `<div id="${brickId}" class="lBrick"><div class="cube" style="left: 40px"></div><div class="cube" style="top: 20px"></div><div class="cube" style="left: 20px; top:20px"></div><div class="cube" style="left: 40px; top:20px"></div></div>`
+            );
+            $(`#${brickId}`).children().css("background-color", "rgb(240, 160, 0)");
+        }
+        function oBrick(brickCanvas, brickId) {
+            $(`.${brickCanvas}`).append(
+                `<div id="${brickId}" class="oBrick"><div class="cube"></div><div class="cube" style="left: 20px"></div><div class="cube" style="top: 20px"></div><div class="cube" style="top: 20px; left: 20px"></div></div>`
+            );
+            $(`#${brickId}`).children().css("background-color", "rgb(255, 255, 0)");
+        }
+        function sBrick(brickCanvas, brickId) {
+            $(`.${brickCanvas}`).append(
+                `<div id="${brickId}" class="sBrick"><div class="cube" style="left: 20px"></div><div class="cube" style="left: 40px"></div><div class="cube" style="top: 20px"></div><div class="cube" style="left: 20px; top:20px"></div></div>`
+            );
+            $(`#${brickId}`).children().css("background-color", "rgb(0, 240, 0)");
+        }
+        function tBrick(brickCanvas, brickId) {
+            $(`.${brickCanvas}`).append(
+                `<div id="${brickId}" class="tBrick"><div class="cube" style="left: 20px"></div><div class="cube" style="top: 20px"></div><div class="cube" style="left: 20px; top:20px"></div><div class="cube" style="left: 40px; top:20px"></div></div>`
+            );
+            $(`#${brickId}`).children().css("background-color", "rgb(160, 0, 240)");
+        }
+        function zBrick(brickCanvas, brickId) {
+            $(`.${brickCanvas}`).append(
+                `<div id="${brickId}" class="zBrick"><div class="cube"></div><div class="cube" style="left: 20px"></div><div class="cube" style="left: 20px; top: 20px"></div><div class="cube" style="left: 40px; top:20px"></div></div>`
+            );
+            $(`#${brickId}`).children().css("background-color", "rgb(240, 0, 0)");
+        }
+        // 取得邊界參數的function
+        function brickBorder() {
+            brickTop = $("#nowBrick").position().top;
+            brickBottom = $("#nowBrick").position().top;
+            brickLeft = $("#nowBrick").position().left;
+            brickRight = $("#nowBrick").position().left;
+        }
+
+        // 邊界差校正function(旋轉範圍可允許超過遊戲畫面40px)
+        function brickBorderFixed() {
+            if (brickTop < -40) $("#nowBrick").css("top", `-=${brickTop + 40}`);
+            if (brickBottom < 0) $("#nowBrick").css("top", `+=${brickBottom}`);
+            if (brickLeft < 0) $("#nowBrick").css("left", `-=${brickLeft}`);
+            if (brickRight < 0) $("#nowBrick").css("left", `+=${brickRight}`);
+
+            // 此處的console為校正前的資訊，會於旋轉時暴露
+            consolePosi();
+        }
+
+        // 邊界及選轉校正的function (實際上只有三種校正模型，對應1*4、2*2、2*3三種brick邊界，雖然長方形的變型原點有兩種，但這依然不影響position取值，最後的function依然只有三種)
+        function lineBrickPos() {
+            // 更新邊界參數
+            brickBorder();
+
+            if ((deg / 90) % 4 === 0) {
+                brickBottom = 400 - (brickBottom + 20);
+                brickRight = 200 - (brickRight + 80);
+            }
+            if ((deg / 90) % 4 === 1) {
+                brickBottom = 400 - (brickBottom + 80);
+                brickLeft = brickLeft - 20;
+                brickRight = 200 - brickRight;
+            }
+            if ((deg / 90) % 4 === 2) {
+                brickTop = brickTop - 20;
+                brickBottom = 400 - brickBottom;
+                brickLeft = brickLeft - 80;
+                brickRight = 200 - brickRight;
+            }
+            if ((deg / 90) % 4 === 3) {
+                brickTop = brickTop - 80;
+                brickBottom = 400 - brickBottom;
+                brickRight = 200 - (brickRight + 20);
+            }
+
+            // 校正旋轉後的邊界差參數
+            brickBorderFixed();
+        }
+
+        function squareBrickPos() {
+            // 更新邊界差參數
+            brickBorder();
+
+            if ((deg / 90) % 4 === 0) {
+                brickBottom = 400 - (brickBottom + 40);
+                brickRight = 200 - (brickRight + 40);
+            }
+            if ((deg / 90) % 4 === 1) {
+                brickBottom = 400 - (brickBottom + 40);
+                brickLeft = brickLeft - 40;
+                brickRight = 200 - brickRight;
+            }
+            if ((deg / 90) % 4 === 2) {
+                brickTop = brickTop - 40;
+                brickBottom = 400 - brickBottom;
+                brickLeft = brickLeft - 40;
+                brickRight = 200 - brickRight;
+            }
+            if ((deg / 90) % 4 === 3) {
+                brickTop = brickTop - 40;
+                brickBottom = 400 - brickBottom;
+                brickRight = 200 - (brickRight + 40);
+            }
+
+            // 校正旋轉後的邊界差參數
+            brickBorderFixed();
+        }
+
+        function rectangleBrickPos() {
+            // 更新邊界差參數
+            brickBorder();
+
+            if ((deg / 90) % 4 === 0) {
+                brickBottom = 400 - (brickBottom + 40);
+                brickRight = 200 - (brickRight + 60);
+            }
+            if ((deg / 90) % 4 === 1) {
+                brickBottom = 400 - (brickBottom + 60);
+                brickLeft = brickLeft - 40;
+                brickRight = 200 - brickRight;
+            }
+            if ((deg / 90) % 4 === 2) {
+                brickTop = brickTop - 40;
+                brickBottom = 400 - brickBottom;
+                brickLeft = brickLeft - 60;
+                brickRight = 200 - brickRight;
+            }
+            if ((deg / 90) % 4 === 3) {
+                brickTop = brickTop - 60;
+                brickBottom = 400 - brickBottom;
+                brickRight = 200 - (brickRight + 40);
+            }
+
+            // 校正旋轉後的邊界差參數
+            brickBorderFixed();
+        }
+    </script>
+</html>
