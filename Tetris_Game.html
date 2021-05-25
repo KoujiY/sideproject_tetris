@@ -241,7 +241,7 @@
             bgBrick();
         });
         $("#delete").click(function () {
-            console.log("end of delete");
+            // console.log("end of delete");
             $("#nextBrick").remove();
         });
 
@@ -257,7 +257,7 @@
 
         // 鍵盤事件
         $(document).on("keydown", function (e) {
-            console.log("e", e.which);
+            // console.log("e", e.which);
 
             // 按下r鍵，重新整理畫面(使用reloadTrigger控制按鍵觸發)
             if (e.which === 82 && reloadTrigger) {
@@ -366,7 +366,7 @@
         function endJudge() {
             cubeDataArr.forEach((bgCube) => {
                 if (bgCube[0] - $(".bg").offset().top < 0) {
-                    console.log("end game");
+                    // console.log("end game");
                     stopGame();
                     return;
                 }
@@ -471,10 +471,10 @@
             cubeDataArr.forEach((bgCube) => {
                 cubeCountObj[bgCube[0]] ? cubeCountObj[bgCube[0]]++ : (cubeCountObj[bgCube[0]] = 1);
             });
-            console.log(cubeCountObj);
+            // console.log(cubeCountObj);
             let cubeCountArr = Object.entries(cubeCountObj);
             cubeCountArr.sort((a, b) => Number(a[0]) - Number(b[0]));
-            console.log(cubeCountArr);
+            // console.log(cubeCountArr);
 
             // 找出top數量為10的row，刪除後將上方的cube下移
             cubeCountArr.forEach((bgCube) => {
@@ -621,7 +621,7 @@
             if (brickRight < 0) $("#nowBrick").css("left", `+=${brickRight}`);
 
             // 此處的console為校正前的資訊，會於旋轉時暴露
-            consolePosi();
+            // consolePosi();
         }
 
         // 邊界及選轉校正的function (實際上只有三種校正模型，對應1*4、2*2、2*3三種brick邊界，雖然長方形的變型原點有兩種，但這依然不影響position取值，最後的function依然只有三種)
