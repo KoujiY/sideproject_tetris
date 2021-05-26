@@ -361,11 +361,13 @@
                 // 判斷10個cube的row並刪除
                 checkCubeRow();
 
-                // 重新呼叫初始化funtion
-                gameInitial();
-
                 // 遊戲結束的判斷
                 endJudge();
+
+                // 重新呼叫初始化funtion
+                if (!reloadTrigger) {
+                    gameInitial();
+                }
             }
         }
 
